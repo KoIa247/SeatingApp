@@ -2,6 +2,8 @@
 
 import clientPromise from "@/lib/mongo";
 import { revalidatePath } from "next/cache";
+import { parseProductString, calculateAssignments } from "@/lib/importer";
+import * as XLSX from "xlsx";
 
 // We don't strictly need to export Booking from here if we use lib/types, 
 // but we can keep the implementation focusing on logic.
@@ -192,5 +194,78 @@ export async function bulkImportBookings(
     } catch (error) {
         console.error("Failed to bulk import bookings:", error);
         return { success: false, error: "Failed to bulk import bookings" };
+    }
+}
+
+export async function syncGoogleSheet(currentDate: string) {
+    try {
+        const url = process.env.GOOGLE_SHEET_URL;
+        if (!url) {
+            return { success: false, error: "GOOGLE_SHEET_URL not configured in environment" };
+        }
+
+        // 1. Fetch CSV data
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch Google Sheet");
+
+        const csvText = await response.text();
+
+        // 2. Parse CSV using XLSX
+        const workbook = XLSX.read(csvText, { type: "string" });
+        const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+        const groups: any = {};
+
+        data.forEach((row: any) => {
+            const keys = Object.keys(row);
+            const normalizeKey = (k: string) => k.toLowerCase().replace(/[\s\n\r]+/g, "");
+
+            const customerKey = keys.find(k => normalizeKey(k) === "customer") || "Customer";
+            const productKey = keys.find(k => normalizeKey(k) === "product") || "Product";
+            const quantityKey = keys.find(k => normalizeKey(k) === "quantity") || "Quantity";
+            const orderKey = keys.find(k => normalizeKey(k) === "ordernumber") || "OrderNumber";
+
+            const customer = row[customerKey];
+            const product = row[productKey];
+            const orderId = row[orderKey];
+            const qty = parseInt(row[quantityKey] || "1");
+
+            if (!product || !customer) return;
+
+            const info = parseProductString(product, currentDate);
+            const key = `${info.date}|${info.time}`;
+
+            if (!groups[key]) groups[key] = { date: info.date, time: info.time, requests: [] };
+            groups[key].requests.push({ customer, qty, info, orderId });
+        });
+
+        // 3. Process groups (same logic as ImportModal)
+        let successCount = 0;
+        let failCount = 0;
+        let skippedCount = 0;
+
+        for (const key in groups) {
+            const g = groups[key];
+            const existing = await getBookings(g.date, g.time);
+            const { newAssignments, successCount: gSuccess, skippedCount: gSkipped, failCount: gFail } = calculateAssignments(g.requests, existing);
+
+            successCount += gSuccess;
+            skippedCount += gSkipped;
+            failCount += gFail;
+
+            if (newAssignments.length > 0) {
+                await bulkImportBookings(newAssignments);
+            }
+        }
+
+        revalidatePath("/");
+        return {
+            success: true,
+            summary: `Sync Complete. Added: ${successCount}, Skipped: ${skippedCount}, Failed/Full: ${failCount}`
+        };
+
+    } catch (error) {
+        console.error("Sync failed:", error);
+        return { success: false, error: "Sync failed. Check console for details." };
     }
 }

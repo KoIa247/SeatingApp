@@ -7,6 +7,7 @@ import { ClearAllButton } from "@/components/ClearAllButton";
 
 import { TimeSelector } from "@/components/TimeSelector";
 import { ImportButton } from "@/components/ImportButton";
+import { RefreshButton } from "@/components/RefreshButton";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
           <TimeSelector />
         </div>
         <div className="flex items-center gap-4">
+          <RefreshButton currentDate={currentDate} />
           <ImportButton currentDate={currentDate} />
           <ClearAllButton eventDate={currentDate} eventTime={currentTime} />
         </div>
