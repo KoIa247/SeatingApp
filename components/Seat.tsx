@@ -10,11 +10,13 @@ interface SeatProps {
   /** The color associated with the role of the customer, used for occupied seats. */
   roleColor?: string;
   onToggle: (id: string) => void;
+  size?: "small" | "medium";
 }
 
-export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, roleColor, onToggle }) => {
+export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, roleColor, onToggle, size = "medium" }) => {
   const isOccupied = status === "occupied";
   const isSelected = status === "selected";
+  const isSmall = size === "small";
 
   return (
     <div className="relative group">
@@ -23,7 +25,8 @@ export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, rol
         disabled={false}
         style={isOccupied && roleColor ? { backgroundColor: roleColor, boxShadow: `0 0 10px ${roleColor}66` } : {}}
         className={`
-            relative h-6 w-7 rounded-t-md transition-all duration-300 ease-out flex items-center justify-center
+            relative rounded-t-[2px] transition-all duration-300 ease-out flex items-center justify-center
+            ${isSmall ? "h-2 w-2.5" : "h-6 w-7 rounded-t-md"}
             ${isOccupied
             ? "cursor-not-allowed border-transparent"
             : "cursor-pointer hover:-translate-y-0.5"
@@ -36,14 +39,18 @@ export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, rol
         aria-label={`Seat ${id} - ${status} - ${isOccupied ? customerName : `$${price}`}`}
         data-testid={`seat-${id}`}
       >
-        {/* Seat Armrests - Smaller */}
-        <span className={`absolute -left-0.5 bottom-0 h-3 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
-        <span className={`absolute -right-0.5 bottom-0 h-3 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
+        {/* Seat Armrests - Smaller - Only for medium size */}
+        {!isSmall && (
+          <>
+            <span className={`absolute -left-0.5 bottom-0 h-3 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
+            <span className={`absolute -right-0.5 bottom-0 h-3 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
+          </>
+        )}
 
       </button>
 
-      {/* Tooltip for Occupied Seat */}
-      {isOccupied && customerName && (
+      {/* Tooltip for Occupied Seat - Only for medium size */}
+      {isOccupied && customerName && !isSmall && (
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 border border-slate-700 text-xs px-3 py-1.5 rounded-lg text-white pointer-events-none whitespace-nowrap z-50 shadow-xl">
           <p className="font-bold text-red-400">Occupied</p>
           <p className="text-slate-200">{customerName}</p>

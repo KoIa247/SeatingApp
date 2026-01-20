@@ -271,13 +271,9 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             {/* Runway Center */}
             <div className="flex flex-col items-center mx-4 shrink-0">
                 <div className="bg-black border-x-2 border-slate-800 w-32 h-[850px] flex items-center justify-center relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-                    <span className="vertical-text text-4xl font-extrabold tracking-[0.5em] text-slate-800 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
-                        RUNWAY 7 FASHION
+                    <span className="vertical-text text-3xl font-extrabold tracking-[0.2em] text-slate-800 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
+                        RUNWAY 7
                     </span>
-                    {/* Press Pit */}
-                    <div className="absolute bottom-0 w-40 h-24 border-2 border-slate-700 rounded-b-full bg-slate-900/50 flex items-center justify-center">
-                        <span className="text-slate-500 font-bold leading-tight text-center">PRESS<br />PIT</span>
-                    </div>
                 </div>
             </div>
 

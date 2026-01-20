@@ -145,6 +145,31 @@ export async function assignMultipleSeats(
     }
 }
 
+export async function getAllBookings() {
+    try {
+        const client = await clientPromise;
+        const bookings = await client.db().collection("Booking").find({}).toArray();
+
+        return bookings.map(b => ({
+            id: b._id.toString(),
+            seatNumber: b.seatNumber,
+            customerName: b.customerName,
+            seatType: b.seatType,
+            eventDate: b.eventDate,
+            eventTime: b.eventTime,
+            orderId: b.orderId,
+            role: b.role,
+            row: b.row,
+            col: b.col,
+            createdAt: b.createdAt || new Date(),
+            updatedAt: b.updatedAt || new Date()
+        }));
+    } catch (error) {
+        console.error("Failed to fetch all bookings:", error);
+        return [];
+    }
+}
+
 export async function bulkImportBookings(
     bookings: {
         seatNumber: string;
