@@ -34,8 +34,6 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
     const getBooking = (seatId: string) =>
         initialBookings.find((b) => b.seatNumber === seatId);
 
-    // ... (rest of helper functions) ...
-
     const handleDeleteSeat = async () => {
         if (!selectedSeat) return;
         const result = await deleteBooking(selectedSeat.number, currentDate, currentTime);
@@ -47,8 +45,6 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             toast.error("Failed to delete booking");
         }
     };
-
-    // ... (rest of logic) ...
 
 
     // Identify seat properties from ID (naive parsing or improved lookup needed for bulk)

@@ -36,7 +36,7 @@ export const SeatModal: React.FC<SeatModalProps> = ({
     eventDate,
     eventTime,
 }) => {
-    const isBulk = !!seatNumbers && seatNumbers.length > 1;
+    const isBulk = !!seatNumbers;
     const [customerName, setCustomerName] = useState(initialCustomerName || "");
     const [role, setRole] = useState<SeatRole>(initialRole || DEFAULT_ROLE);
     const [loading, setLoading] = useState(false);
