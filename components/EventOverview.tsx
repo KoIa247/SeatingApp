@@ -5,6 +5,7 @@ import { getAllBookings } from "@/app/actions";
 import { MapVisual } from "./MapVisual";
 import { Booking } from "@/lib/types";
 import { TIME_SLOTS } from "./TimeSelector";
+import { formatDate } from "@/lib/utils";
 
 const DATES = ["2024-02-13", "2024-02-14", "2024-02-15"];
 
@@ -50,7 +51,7 @@ export const EventOverview = () => {
                             onClick={() => setSelectedDateFilter(date)}
                             className={`px-4 py-2 text-sm font-bold rounded-md transition-all ${selectedDateFilter === date ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
                         >
-                            {date.split('-').slice(1).join('/')}
+                            {formatDate(date)}
                         </button>
                     ))}
                 </div>
@@ -65,7 +66,7 @@ export const EventOverview = () => {
                                 <div key={`${date}-${time}`} className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 flex flex-col items-center">
                                     <div className="w-full flex justify-between items-center mb-6">
                                         <div>
-                                            <h3 className="text-lg font-black text-white">{date}</h3>
+                                            <h3 className="text-lg font-black text-white">{formatDate(date)}</h3>
                                             <p className="text-violet-400 font-bold">{time}</p>
                                         </div>
                                         <div className="text-right">

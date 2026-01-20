@@ -10,6 +10,7 @@ import { ImportButton } from "@/components/ImportButton";
 import { RefreshButton } from "@/components/RefreshButton";
 
 import { AppLayout } from "@/components/AppLayout";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
         <div className="flex-1 w-full overflow-x-auto bg-slate-900/20 rounded-[3rem] border border-slate-800/30 p-10 shadow-2xl">
           <div className="flex justify-between items-center mb-10 px-10">
             <div>
-              <h2 className="text-4xl font-black text-white tracking-tighter">{currentDate}</h2>
+              <h2 className="text-4xl font-black text-white tracking-tighter">{formatDate(currentDate)}</h2>
               <p className="text-violet-400 font-bold tracking-widest uppercase">{currentTime}</p>
             </div>
             <div className="2xl:hidden">

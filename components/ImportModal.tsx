@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { getBookings, bulkImportBookings } from "@/app/actions";
 import { parseProductString, calculateAssignments } from "@/lib/importer";
 
+import { formatDate } from "@/lib/utils";
+
 interface ImportModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -151,7 +153,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, curre
                         <div className="flex flex-col gap-2 max-h-40 overflow-y-auto mb-4 bg-black/20 p-2 rounded">
                             {Object.values(previewGroups).map((g: any) => (
                                 <div key={`${g.date}-${g.time}`} className="text-xs text-slate-300">
-                                    • {g.date} @ {g.time} ({g.requests.length} requests)
+                                    • {formatDate(g.date)} @ {g.time} ({g.requests.length} requests)
                                 </div>
                             ))}
                         </div>
