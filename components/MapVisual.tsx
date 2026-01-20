@@ -67,16 +67,21 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
             );
         }
         return (
-            <div key={`section-${sectionNum}`} className="flex flex-col items-center">
+            <div key={`section-${sectionNum}`} className={`flex flex-col items-center p-1 rounded-sm ${isSmall ? "bg-white/90 shadow-sm" : ""}`}>
                 {!isSmall && (
                     <>
                         <span className="text-xs text-slate-500 mb-1 font-bold">{sectionNum}</span>
-                        <span className="text-[10px] text-slate-400 mb-2 font-mono">
-                            {occupied}/{rows}
-                        </span>
+                        <div className="bg-white px-2 py-0.5 rounded border border-slate-200 mb-2">
+                            <span className="text-xs text-black font-black font-mono">
+                                {occupied}/{rows}
+                            </span>
+                        </div>
                     </>
                 )}
-                {seats}
+                {/* For Overview mode (isSmall), we show the count differently or just let the colors speak */}
+                <div className={`flex flex-col items-center ${isSmall ? "" : ""}`}>
+                    {seats}
+                </div>
             </div>
         );
     };
@@ -88,13 +93,15 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
         const occupied = getVipOccupiedCount(prefix, rows, cols);
 
         return (
-            <div className={`flex flex-col items-center ${isSmall ? "mx-1" : "mx-4"}`}>
+            <div className={`flex flex-col items-center p-1 rounded-sm ${isSmall ? "bg-white/90 shadow-sm mx-[2px]" : "mx-4"}`}>
                 {!isSmall && (
                     <>
-                        <h3 className="text-sm font-bold text-amber-500 mb-2 text-center">VIP {side}</h3>
-                        <span className="text-[10px] text-slate-400 mb-2 font-mono">
-                            {occupied}/{rows * cols}
-                        </span>
+                        <h3 className="text-sm font-bold text-amber-500 mb-2 text-center uppercase">VIP {side}</h3>
+                        <div className="bg-white px-2 py-0.5 rounded border border-slate-200 mb-2">
+                            <span className="text-xs text-black font-black font-mono">
+                                {occupied}/{rows * cols}
+                            </span>
+                        </div>
                     </>
                 )}
                 <div className={`grid grid-cols-2 ${isSmall ? "gap-[1px]" : "gap-1"}`}>
@@ -120,11 +127,21 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
                     })}
                 </div>
             </div>
-        )
+        );
+    };
+
+    const getGACount = () => {
+        let count = 0;
+        for (let i = 1; i <= 100; i++) {
+            const row = Math.floor((i - 1) / 5) + 1;
+            const col = ((i - 1) % 5) + 1;
+            if (getBooking(`GA-${row}-${col}`)) count++;
+        }
+        return count;
     };
 
     return (
-        <div className={`flex flex-row justify-center items-start w-full gap-1 p-2 ${isSmall ? "scale-75 origin-top" : ""}`}>
+        <div className={`flex flex-row justify-center items-start w-full gap-1 p-2 ${isSmall ? "scale-[0.85] origin-top sm:scale-100" : ""}`}>
             {/* VIP Tables Left */}
             {renderVipTable("LEFT")}
 
@@ -139,10 +156,10 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
             </div>
 
             {/* Runway Center */}
-            <div className={`flex flex-col items-center shrink-0 ${isSmall ? "mx-1" : "mx-4"}`}>
-                <div className={`bg-black border-slate-800 ${isSmall ? "w-4 h-[200px] border-x" : "w-24 h-[850px] border-x-2"} flex items-center justify-center relative shadow-[0_0_20px_rgba(0,0,0,0.8)]`}>
+            <div className={`flex flex-col items-center shrink-0 ${isSmall ? "mx-[2px]" : "mx-4"}`}>
+                <div className={`bg-white border-slate-200 ${isSmall ? "w-2 h-[200px] border-x" : "w-12 h-[850px] border-x shadow-[0_0_30px_rgba(255,255,255,0.2)]"} flex items-center justify-center relative`}>
                     {!isSmall && (
-                        <span className="vertical-text text-xl font-extrabold tracking-[0.2em] text-slate-800 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
+                        <span className="vertical-text text-lg font-black tracking-[0.1em] text-black/80 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
                             RUNWAY 7
                         </span>
                     )}
@@ -163,8 +180,17 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
             {renderVipTable("RIGHT")}
 
             {/* General Admission */}
-            <div className={`flex flex-col items-center ${isSmall ? "ml-2 border-l border-slate-800" : "ml-8 border-l border-slate-800 pl-8"} h-full`}>
-                {!isSmall && <h3 className="text-xl font-bold text-slate-400 mb-2 text-center uppercase">GA</h3>}
+            <div className={`flex flex-col items-center p-1 rounded-sm ${isSmall ? "bg-white/90 shadow-sm ml-1 border-l border-slate-200" : "ml-8 border-l border-slate-800 pl-8"} h-full`}>
+                {!isSmall && (
+                    <>
+                        <h3 className="text-xl font-bold text-slate-400 mb-2 text-center uppercase">GA</h3>
+                        <div className="bg-white px-3 py-1 rounded border border-slate-200 mb-4">
+                            <span className="text-sm text-black font-black font-mono">
+                                {getGACount()}/100
+                            </span>
+                        </div>
+                    </>
+                )}
                 <div className={`grid grid-cols-5 ${isSmall ? "gap-[1px]" : "gap-1"}`}>
                     {Array.from({ length: 100 }).map((_, i) => {
                         const row = Math.floor(i / 5) + 1;

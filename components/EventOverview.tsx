@@ -35,13 +35,13 @@ export const EventOverview = () => {
 
     return (
         <div className="w-full">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <h2 className="text-2xl font-bold text-white">Event Comparison Overview</h2>
 
-                <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-slate-800">
+                <div className="flex flex-wrap items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-slate-800 w-full sm:w-auto">
                     <button
                         onClick={() => setSelectedDateFilter("ALL")}
-                        className={`px-4 py-2 text-sm font-bold rounded-md transition-all ${selectedDateFilter === "ALL" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
+                        className={`flex-1 sm:flex-none px-4 py-2 text-sm font-bold rounded-md transition-all ${selectedDateFilter === "ALL" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
                     >
                         ALL DAYS
                     </button>
@@ -49,7 +49,7 @@ export const EventOverview = () => {
                         <button
                             key={date}
                             onClick={() => setSelectedDateFilter(date)}
-                            className={`px-4 py-2 text-sm font-bold rounded-md transition-all ${selectedDateFilter === date ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
+                            className={`flex-1 sm:flex-none px-4 py-2 text-sm font-bold rounded-md transition-all ${selectedDateFilter === date ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
                         >
                             {formatDate(date)}
                         </button>
@@ -57,26 +57,28 @@ export const EventOverview = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-8">
                 {filteredDates.map(date => (
                     <React.Fragment key={date}>
                         {TIME_SLOTS.map(time => {
                             const showBookings = allBookings.filter(b => b.eventDate === date && b.eventTime === time);
                             return (
-                                <div key={`${date}-${time}`} className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 flex flex-col items-center">
-                                    <div className="w-full flex justify-between items-center mb-6">
+                                <div key={`${date}-${time}`} className="bg-slate-900/40 border border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-6 flex flex-col items-center">
+                                    <div className="w-full flex justify-between items-center mb-4 sm:mb-6">
                                         <div>
-                                            <h3 className="text-lg font-black text-white">{formatDate(date)}</h3>
-                                            <p className="text-violet-400 font-bold">{time}</p>
+                                            <h3 className="text-base sm:text-lg font-black text-white">{formatDate(date)}</h3>
+                                            <p className="text-violet-400 font-bold text-sm sm:text-base">{time}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs text-slate-500 font-bold uppercase">Occupancy</p>
-                                            <p className="text-xl font-mono text-emerald-400 font-black">{showBookings.length}</p>
+                                            <p className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase">Occupancy</p>
+                                            <p className="text-lg sm:text-xl font-mono text-emerald-400 font-black">{showBookings.length}</p>
                                         </div>
                                     </div>
 
-                                    <div className="w-full overflow-hidden bg-black/20 rounded-2xl border border-slate-800/50">
-                                        <MapVisual bookings={showBookings} isSmall={true} />
+                                    <div className="w-full overflow-hidden bg-black/20 rounded-xl sm:rounded-2xl border border-slate-800/50">
+                                        <div className="scale-[0.8] sm:scale-100 origin-top">
+                                            <MapVisual bookings={showBookings} isSmall={true} />
+                                        </div>
                                     </div>
                                 </div>
                             );
