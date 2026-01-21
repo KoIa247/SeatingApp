@@ -8,6 +8,7 @@ import { ClearAllButton } from "@/components/ClearAllButton";
 import { TimeSelector } from "@/components/TimeSelector";
 import { ImportButton } from "@/components/ImportButton";
 import { RefreshButton } from "@/components/RefreshButton";
+import { ExportButton } from "@/components/ExportButton";
 
 import { AppLayout } from "@/components/AppLayout";
 import { formatDate } from "@/lib/utils";
@@ -40,6 +41,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
         </div>
         <div className="flex items-center gap-3">
           <RefreshButton currentDate={currentDate} />
+          <ExportButton targetId="seat-map-capture" filename={`seating-${currentDate}`} />
           <ImportButton currentDate={currentDate} />
           <ClearAllButton eventDate={currentDate} eventTime={currentTime} />
         </div>
@@ -52,7 +54,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
         </div>
 
         {/* Main Seat Map */}
-        <div className="flex-1 w-full overflow-x-auto bg-slate-900/20 rounded-[2.5rem] border border-slate-800/30 p-6 shadow-2xl">
+        <div id="seat-map-capture" className="flex-1 w-full overflow-x-auto bg-slate-900/20 rounded-[2.5rem] border border-slate-800/30 p-6 shadow-2xl">
           <div className="flex justify-between items-center mb-6 px-6">
             <div>
               <h2 className="text-3xl font-black text-white tracking-tighter">{formatDate(currentDate)}</h2>

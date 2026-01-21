@@ -57,13 +57,13 @@ export const EventOverview = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
                 {filteredDates.map(date => (
                     <React.Fragment key={date}>
                         {TIME_SLOTS.map(time => {
                             const showBookings = allBookings.filter(b => b.eventDate === date && b.eventTime === time);
                             return (
-                                <div key={`${date}-${time}`} className="bg-slate-900/40 border border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-6 flex flex-col items-center">
+                                <div key={`${date}-${time}`} className="bg-slate-900/40 border border-slate-800 rounded-xl sm:rounded-3xl p-2 sm:p-6 flex flex-col items-center">
                                     <div className="w-full flex justify-between items-center mb-4 sm:mb-6">
                                         <div>
                                             <h3 className="text-base sm:text-lg font-black text-white">{formatDate(date)}</h3>
@@ -75,8 +75,8 @@ export const EventOverview = () => {
                                         </div>
                                     </div>
 
-                                    <div className="w-full overflow-hidden bg-black/20 rounded-xl sm:rounded-2xl border border-slate-800/50">
-                                        <div className="scale-[0.8] sm:scale-100 origin-top">
+                                    <div className="w-full overflow-hidden bg-black/20 rounded-lg sm:rounded-2xl border border-slate-800/50">
+                                        <div className="origin-top flex justify-center">
                                             <MapVisual bookings={showBookings} isSmall={true} />
                                         </div>
                                     </div>

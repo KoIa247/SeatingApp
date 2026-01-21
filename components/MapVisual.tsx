@@ -53,7 +53,7 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
             const booking = getBooking(seatId);
 
             seats.push(
-                <div key={seatId} className={`flex justify-center items-center ${isSmall ? "w-2 h-2 m-[1px]" : "w-8 h-8 m-0.5"}`}>
+                <div key={seatId} className={`flex justify-center items-center ${isSmall ? "w-[12px] h-[12px] m-[1px]" : "w-[23px] h-[23px] m-[1px]"}`}>
                     <Seat
                         id={seatId}
                         status={booking ? "occupied" : "available"}
@@ -112,7 +112,7 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
                         const booking = getBooking(id);
 
                         return (
-                            <div key={id} className={`${isSmall ? "w-2 h-2" : "w-8 h-8"} flex items-center justify-center`}>
+                            <div key={id} className={`${isSmall ? "w-[12px] h-[12px]" : "w-[23px] h-[23px]"} flex items-center justify-center`}>
                                 <Seat
                                     id={id}
                                     status={booking ? "occupied" : "available"}
@@ -141,7 +141,7 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
     };
 
     return (
-        <div className={`flex flex-row justify-center items-start w-full gap-1 p-2 ${isSmall ? "scale-[0.85] origin-top sm:scale-100" : ""}`}>
+        <div className={`flex flex-row justify-center items-start w-full gap-[2px] p-1 sm:p-2 ${isSmall ? "" : ""}`}>
             {/* VIP Tables Left */}
             {renderVipTable("LEFT")}
 
@@ -156,8 +156,8 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
             </div>
 
             {/* Runway Center */}
-            <div className={`flex flex-col items-center shrink-0 ${isSmall ? "mx-[2px]" : "mx-4"}`}>
-                <div className={`bg-white border-slate-200 ${isSmall ? "w-2 h-[200px] border-x" : "w-12 h-[850px] border-x shadow-[0_0_30px_rgba(255,255,255,0.2)]"} flex items-center justify-center relative`}>
+            <div className={`flex flex-col items-center shrink-0 ${isSmall ? "mx-[1px]" : "mx-4"}`}>
+                <div className={`bg-white border-slate-200 ${isSmall ? "w-3 h-[280px] border-x" : "w-12 h-[660px] border-x shadow-[0_0_30px_rgba(255,255,255,0.2)]"} flex items-center justify-center relative`}>
                     {!isSmall && (
                         <span className="vertical-text text-lg font-black tracking-[0.1em] text-black/80 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
                             RUNWAY 7
@@ -198,7 +198,7 @@ export const MapVisual: React.FC<MapVisualProps> = ({ bookings, isSmall = false 
                         const id = `GA-${row}-${col}`;
                         const booking = getBooking(id);
                         return (
-                            <div key={id} className={`${isSmall ? "w-2 h-2" : "w-8 h-8"} flex items-center justify-center`}>
+                            <div key={id} className={`${isSmall ? "w-[12px] h-[12px]" : "w-[23px] h-[23px]"} flex items-center justify-center`}>
                                 <Seat
                                     id={id}
                                     status={booking ? "occupied" : "available"}
