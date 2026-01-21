@@ -26,7 +26,7 @@ export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, rol
         style={isOccupied && roleColor ? { backgroundColor: roleColor, boxShadow: `0 0 10px ${roleColor}66` } : {}}
         className={`
             relative rounded-t-[2px] transition-all duration-300 ease-out flex items-center justify-center
-            ${isSmall ? "h-2 w-2.5" : "h-5 w-6 rounded-t-sm"}
+            ${isSmall ? "h-2 w-2.5" : "h-[18px] w-[22px] rounded-t-sm"}
             ${isOccupied
             ? "cursor-not-allowed border-transparent"
             : "cursor-pointer hover:-translate-y-0.5"
@@ -42,8 +42,8 @@ export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, rol
         {/* Seat Armrests - Smaller - Only for medium size */}
         {!isSmall && (
           <>
-            <span className={`absolute -left-0.5 bottom-0 h-3 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
-            <span className={`absolute -right-0.5 bottom-0 h-3 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
+            <span className={`absolute -left-0.5 bottom-0 h-2.5 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
+            <span className={`absolute -right-0.5 bottom-0 h-2.5 w-0.5 rounded-sm ${isOccupied ? "bg-black/20" : isSelected ? "bg-violet-600" : "bg-slate-600"}`}></span>
           </>
         )}
 

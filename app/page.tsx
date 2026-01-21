@@ -32,30 +32,31 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
 
   return (
     <AppLayout>
-      <div className="flex flex-col lg:flex-row justify-between items-start mb-8 gap-4">
-        <div className="flex flex-col gap-4">
+      <div className="flex flex-col lg:flex-row justify-between items-center mb-6 gap-6">
+        <div className="flex flex-row items-center gap-6">
           <DateSelector />
+          <div className="h-8 w-px bg-slate-800 hidden lg:block"></div>
           <TimeSelector />
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <RefreshButton currentDate={currentDate} />
           <ImportButton currentDate={currentDate} />
           <ClearAllButton eventDate={currentDate} eventTime={currentTime} />
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row items-start justify-center gap-8">
+      <div className="flex flex-col xl:flex-row items-start justify-center gap-6">
         {/* Legend Sidebar - Minimal version for main content */}
-        <div className="hidden 2xl:block w-64 shrink-0 bg-slate-900/30 p-6 rounded-3xl border border-slate-800/50">
+        <div className="hidden 2xl:block w-64 shrink-0 bg-slate-900/30 p-5 rounded-3xl border border-slate-800/50">
           <Legend />
         </div>
 
         {/* Main Seat Map */}
-        <div className="flex-1 w-full overflow-x-auto bg-slate-900/20 rounded-[3rem] border border-slate-800/30 p-10 shadow-2xl">
-          <div className="flex justify-between items-center mb-10 px-10">
+        <div className="flex-1 w-full overflow-x-auto bg-slate-900/20 rounded-[2.5rem] border border-slate-800/30 p-6 shadow-2xl">
+          <div className="flex justify-between items-center mb-6 px-6">
             <div>
-              <h2 className="text-4xl font-black text-white tracking-tighter">{formatDate(currentDate)}</h2>
-              <p className="text-violet-400 font-bold tracking-widest uppercase">{currentTime}</p>
+              <h2 className="text-3xl font-black text-white tracking-tighter">{formatDate(currentDate)}</h2>
+              <p className="text-violet-400 font-bold tracking-widest uppercase text-sm">{currentTime}</p>
             </div>
             <div className="2xl:hidden">
               <Legend />

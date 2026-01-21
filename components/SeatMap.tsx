@@ -191,7 +191,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             const isSelected = selectedSeat?.number === seatId || bulkSelectedSeats.has(seatId);
 
             seats.push(
-                <div key={seatId} className="flex justify-center items-center w-7 h-7 m-[1px]">
+                <div key={seatId} className="flex justify-center items-center w-[23px] h-[23px] m-[1px]">
                     <Seat
                         id={seatId}
                         status={booking ? "occupied" : isSelected ? "selected" : "available"}
@@ -241,7 +241,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
                         const isSelected = selectedSeat?.number === id;
 
                         return (
-                            <div key={id} className="w-7 h-7 flex items-center justify-center">
+                            <div key={id} className="w-[23px] h-[23px] flex items-center justify-center">
                                 <Seat
                                     id={id}
                                     status={booking ? "occupied" : isSelected ? "selected" : "available"}
@@ -276,7 +276,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
 
             {/* Runway Center */}
             <div className="flex flex-col items-center mx-1 shrink-0">
-                <div className="bg-white border-x-2 border-slate-200 w-12 h-[720px] flex items-center justify-center relative shadow-[0_0_40px_rgba(255,255,255,0.15)]">
+                <div className="bg-white border-x-2 border-slate-200 w-12 h-[660px] flex items-center justify-center relative shadow-[0_0_40px_rgba(255,255,255,0.15)]">
                     <span className="vertical-text text-xl font-black tracking-[0.1em] text-black/80 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
                         RUNWAY 7
                     </span>
@@ -312,7 +312,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
                         const booking = getBooking(id);
                         const isSelected = selectedSeat?.number === id;
                         return (
-                            <div key={id} className="w-7 h-7 flex items-center justify-center">
+                            <div key={id} className="w-[23px] h-[23px] flex items-center justify-center">
                                 <Seat
                                     id={id}
                                     status={booking ? "occupied" : isSelected ? "selected" : "available"}
