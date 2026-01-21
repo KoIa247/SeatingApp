@@ -139,7 +139,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, curre
                 ) : (
                     <div className="bg-slate-800 border border-slate-700 p-4 rounded-lg">
                         <h3 className="text-violet-400 font-bold mb-2">
-                            ℹ️ Import Summary
+                            Import Summary
                         </h3>
                         <p className="text-slate-400 text-sm mb-4">
                             Found <b>{Object.keys(previewGroups).length} events</b> in the file.

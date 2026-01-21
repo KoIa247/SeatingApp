@@ -1,24 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", "sans-serif";
-  
+  --font-sans: var(--font-dm-sans), "Inter", "sans-serif";
+
   --color-background: #0b0c15;
   --color-foreground: #e2e8f0;
-  
+
   --color-primary: #8b5cf6;
   --color-primary-glow: rgba(139, 92, 246, 0.5);
-  
+
   --color-seat-available: #334155;
   --color-seat-selected: #8b5cf6;
   --color-seat-occupied: #1e293b;
-  
+
   --animate-glow: glow 2s ease-in-out infinite alternate;
-  
+
   @keyframes glow {
     from {
       box-shadow: 0 0 10px -5px var(--color-primary-glow);
     }
+
     to {
       box-shadow: 0 0 20px 5px var(--color-primary-glow);
     }

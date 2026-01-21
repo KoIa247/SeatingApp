@@ -238,7 +238,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
                         const col = (i % 2) + 1;
                         const id = `${prefix}-${row}-${col}`;
                         const booking = getBooking(id);
-                        const isSelected = selectedSeat?.number === id;
+                        const isSelected = selectedSeat?.number === id || bulkSelectedSeats.has(id);
 
                         return (
                             <div key={id} className="w-[23px] h-[23px] flex items-center justify-center">
@@ -310,7 +310,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
                         const col = (i % 5) + 1;
                         const id = `GA-${row}-${col}`;
                         const booking = getBooking(id);
-                        const isSelected = selectedSeat?.number === id;
+                        const isSelected = selectedSeat?.number === id || bulkSelectedSeats.has(id);
                         return (
                             <div key={id} className="w-[23px] h-[23px] flex items-center justify-center">
                                 <Seat
@@ -335,13 +335,12 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
                         className="bg-violet-600 hover:bg-violet-500 text-white px-8 py-3 rounded-full font-bold shadow-[0_0_20px_rgba(124,58,237,0.5)] flex items-center gap-3 transition-transform hover:scale-105 active:scale-95"
                     >
                         <span>Assign {bulkSelectedSeats.size} Selected Seats</span>
-                        <div className="bg-white/20 px-2 py-0.5 rounded text-sm">⏎</div>
                     </button>
                     <button
                         onClick={() => setBulkSelectedSeats(new Set())}
                         className="absolute -top-3 -right-3 bg-slate-800 text-slate-400 hover:text-white rounded-full w-6 h-6 flex items-center justify-center text-xs border border-slate-600 shadow-lg"
                     >
-                        ✕
+                        Clear
                     </button>
                 </div>
             )}
