@@ -26,7 +26,7 @@ export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, rol
         style={isOccupied && roleColor ? { backgroundColor: roleColor, boxShadow: `0 0 10px ${roleColor}66` } : {}}
         className={`
             relative rounded-t-[2px] transition-all duration-300 ease-out flex items-center justify-center
-            ${isSmall ? "h-2 w-2.5" : "h-6 w-7 rounded-t-md"}
+            ${isSmall ? "h-2 w-2.5" : "h-5 w-6 rounded-t-sm"}
             ${isOccupied
             ? "cursor-not-allowed border-transparent"
             : "cursor-pointer hover:-translate-y-0.5"
