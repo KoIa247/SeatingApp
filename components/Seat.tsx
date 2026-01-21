@@ -32,7 +32,7 @@ export const Seat: React.FC<SeatProps> = ({ id, status, price, customerName, rol
             : "cursor-pointer hover:-translate-y-0.5"
           }
             ${status === "available" ? "bg-seat-available hover:bg-slate-600 hover:shadow-[0_0_10px_rgba(139,92,246,0.5)]" : ""}
-            ${isSelected ? "bg-seat-selected shadow-[0_0_15px_var(--color-primary)] scale-110 z-10" : ""}
+            ${isSelected ? "bg-violet-600 shadow-[0_0_15px_rgba(139,92,246,0.8)] scale-110 z-10" : ""}
              /* Fallback for occupied if roleColor missing */
             ${isOccupied && !roleColor ? "bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.4)]" : ""}
           `}

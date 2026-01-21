@@ -204,12 +204,16 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             );
         }
         return (
-            <div key={`section-${sectionNum}`} className="flex flex-col items-center">
+            <div key={`section-${sectionNum}`} className="flex flex-col items-center p-1 rounded-sm bg-white/90 shadow-sm border border-slate-200/50">
                 <span className="text-xs text-slate-500 mb-1 font-bold">{sectionNum}</span>
-                <span className="text-[10px] text-slate-400 mb-2 font-mono">
-                    {occupied}/{rows}
-                </span>
-                {seats}
+                <div className="bg-white px-2 py-0.5 rounded border border-slate-200 mb-2">
+                    <span className="text-xs text-black font-black font-mono">
+                        {occupied}/{rows}
+                    </span>
+                </div>
+                <div className="flex flex-col items-center">
+                    {seats}
+                </div>
             </div>
         );
     };
@@ -221,11 +225,13 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
         const occupied = getVipOccupiedCount(prefix, rows, cols);
 
         return (
-            <div className="flex flex-col items-center mx-4">
-                <h3 className="text-sm font-bold text-amber-500 mb-2 text-center">VIP {side}</h3>
-                <span className="text-[10px] text-slate-400 mb-2 font-mono">
-                    {occupied}/{rows * cols}
-                </span>
+            <div className="flex flex-col items-center p-1 rounded-sm bg-white/90 shadow-sm border border-slate-200/50 mx-1">
+                <h3 className="text-sm font-bold text-amber-500 mb-1 text-center uppercase tracking-tight">VIP {side}</h3>
+                <div className="bg-white px-2 py-0.5 rounded border border-slate-200 mb-2">
+                    <span className="text-xs text-black font-black font-mono">
+                        {occupied}/{rows * cols}
+                    </span>
+                </div>
                 <div className="grid grid-cols-2 gap-1">
                     {Array.from({ length: rows * cols }).map((_, i) => {
                         const row = Math.floor(i / 2) + 1;
@@ -253,14 +259,14 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
     };
 
     return (
-        <div className="flex flex-row justify-center items-start w-full max-w-[1800px] mx-auto p-4 gap-4 overflow-x-auto">
+        <div className="flex flex-row justify-center items-start w-full max-w-[1800px] mx-auto p-4 gap-1 overflow-x-auto">
 
             {/* VIP Tables Left */}
             {renderVipTable("LEFT")}
 
             {/* Left Row Section: 5 4 3 2 1 */}
-            <div className="flex flex-col items-end">
-                <h2 className="text-xl font-bold text-slate-400 mb-4 pr-10">LEFT ROW</h2>
+            <div className="flex flex-col items-end px-1">
+                <h2 className="text-base font-black text-slate-500 mb-4 pr-4 uppercase tracking-widest">Left</h2>
                 <div className="flex gap-1 items-start justify-end">
                     {[5, 4, 3, 2, 1].map(secNum =>
                         renderSectionColumn(secNum, SECTION_LENGTHS[secNum], "LEFT_ROW")
@@ -269,17 +275,17 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             </div>
 
             {/* Runway Center */}
-            <div className="flex flex-col items-center mx-4 shrink-0">
-                <div className="bg-black border-x-2 border-slate-800 w-32 h-[850px] flex items-center justify-center relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-                    <span className="vertical-text text-3xl font-extrabold tracking-[0.2em] text-slate-800 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
+            <div className="flex flex-col items-center mx-1 shrink-0">
+                <div className="bg-white border-x-2 border-slate-200 w-12 h-[850px] flex items-center justify-center relative shadow-[0_0_40px_rgba(255,255,255,0.15)]">
+                    <span className="vertical-text text-xl font-black tracking-[0.1em] text-black/80 pointer-events-none whitespace-nowrap" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>
                         RUNWAY 7
                     </span>
                 </div>
             </div>
 
             {/* Right Row Section: 1 2 3 4 5 */}
-            <div className="flex flex-col items-start">
-                <h2 className="text-xl font-bold text-slate-400 mb-4 pl-10">RIGHT ROW</h2>
+            <div className="flex flex-col items-start px-1">
+                <h2 className="text-base font-black text-slate-500 mb-4 pl-4 uppercase tracking-widest">Right</h2>
                 <div className="flex gap-1 items-start justify-start">
                     {[1, 2, 3, 4, 5].map(secNum =>
                         renderSectionColumn(secNum, SECTION_LENGTHS[secNum], "RIGHT_ROW")
@@ -291,11 +297,13 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             {renderVipTable("RIGHT")}
 
             {/* General Admission: Right Sidebar */}
-            <div className="flex flex-col items-center ml-8 border-l border-slate-800 pl-8 h-[850px]">
-                <h3 className="text-xl font-bold text-slate-400 mb-2 text-center">GENERAL<br />ADMISSION</h3>
-                <span className="text-[10px] text-slate-400 mb-2 font-mono">
-                    {getGACount()}/100
-                </span>
+            <div className="flex flex-col items-center p-1 rounded-sm bg-white/90 shadow-sm border border-slate-200/50 mx-1 h-full">
+                <h3 className="text-sm font-bold text-slate-500 mb-1 text-center uppercase tracking-tight">GA</h3>
+                <div className="bg-white px-2 py-0.5 rounded border border-slate-200 mb-2">
+                    <span className="text-xs text-black font-black font-mono">
+                        {getGACount()}/100
+                    </span>
+                </div>
                 <div className="grid grid-cols-5 gap-1">
                     {Array.from({ length: 100 }).map((_, i) => { // 5 cols * 20 rows = 100 seats
                         const row = Math.floor(i / 5) + 1;
