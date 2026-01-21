@@ -16,6 +16,11 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ targetId, filename =
         toPng(node, {
             backgroundColor: "#0b0c15",
             pixelRatio: 2, // Higher quality
+            style: {
+                overflow: 'visible',
+                padding: '20px',
+                borderRadius: '0',
+            }
         })
             .then((dataUrl) => {
                 const link = document.createElement("a");
