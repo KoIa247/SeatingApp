@@ -2,12 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatDate } from "@/lib/utils";
-
-const EVENT_DATES = [
-    "2024-02-13",
-    "2024-02-14",
-    "2024-02-15",
-];
+import { EVENT_DATES } from "@/lib/constants";
 
 export const DateSelector: React.FC = () => {
     const router = useRouter();

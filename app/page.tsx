@@ -12,13 +12,17 @@ import { ExportButton } from "@/components/ExportButton";
 
 import { AppLayout } from "@/components/AppLayout";
 import { formatDate } from "@/lib/utils";
+import { DEFAULT_DATE, SHOW_TIMES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ date?: string; time?: string }> }) {
   const { date, time } = await searchParams;
-  const currentDate = date || "2024-02-13"; // Default to a valid date
-  const currentTime = time || "11:00 AM";
+  const currentDate = date || DEFAULT_DATE;
+  const availableTimes = SHOW_TIMES[currentDate] || [];
+
+  // Ensure the time is valid for the current date, otherwise use the first available time
+  const currentTime = (time && availableTimes.includes(time)) ? time : (availableTimes[0] || "");
 
   const bookings = await getBookings(currentDate, currentTime);
 
