@@ -23,7 +23,7 @@ export const parseProductString = (product: string, currentDate: string): Parsed
     let parsedDate = currentDate;
     if (dateMatch) {
         const day = dateMatch[1].padStart(2, '0');
-        parsedDate = `2024-02-${day}`;
+        parsedDate = `2026-02-${day}`;
     }
 
     // 2. TIME

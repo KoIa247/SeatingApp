@@ -29,7 +29,7 @@ export const EventOverview = () => {
         );
     }
 
-    const filteredDates = selectedDateFilter === "ALL" ? DATES : [selectedDateFilter];
+    const filteredDates = selectedDateFilter === "ALL" ? EVENT_DATES : [selectedDateFilter];
 
     return (
         <div className="w-full">
@@ -43,7 +43,7 @@ export const EventOverview = () => {
                     >
                         ALL DAYS
                     </button>
-                    {DATES.map(date => (
+                    {EVENT_DATES.map((date: string) => (
                         <button
                             key={date}
                             onClick={() => setSelectedDateFilter(date)}
@@ -56,9 +56,9 @@ export const EventOverview = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-                {filteredDates.map(date => (
+                {filteredDates.map((date: string) => (
                     <React.Fragment key={date}>
-                        {TIME_SLOTS.map(time => {
+                        {(SHOW_TIMES[date] || []).map((time: string) => {
                             const showBookings = allBookings.filter(b => b.eventDate === date && b.eventTime === time);
                             return (
                                 <div key={`${date}-${time}`} className="bg-slate-900/40 border border-slate-800 rounded-xl sm:rounded-3xl p-2 sm:p-6 flex flex-col items-center">

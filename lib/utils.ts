@@ -1,5 +1,5 @@
 export const formatDate = (dateStr: string) => {
-    // Input: "2024-02-13"
+    // Input: "2026-02-13"
     // Output: "February 13th"
     if (!dateStr) return "";
 
