@@ -4,10 +4,8 @@ import React, { useState, useEffect } from "react";
 import { getAllBookings } from "@/app/actions";
 import { MapVisual } from "./MapVisual";
 import { Booking } from "@/lib/types";
-import { TIME_SLOTS } from "./TimeSelector";
+import { EVENT_DATES, SHOW_TIMES } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
-
-const DATES = ["2024-02-13", "2024-02-14", "2024-02-15"];
 
 export const EventOverview = () => {
     const [allBookings, setAllBookings] = useState<Booking[]>([]);
