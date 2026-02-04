@@ -7,7 +7,7 @@ export const SEAT_ROLES = {
     "Influencers": "#0EA5E9", // Sky
     "Press Magazines": "#A855F7", // Purple
     "Potential Brands": "#D946EF", // Fuchsia
-    "Project Lab Guest": "#15803D", // Dark Green
+    "Media": "#15803D", // Dark Green
     "Complimentary": "#F97316", // Orange
     "Guests per Brand": "#14B8A6", // Teal (Assigned)
     "Selected Models": "#64748B", // Slate (Assigned)
