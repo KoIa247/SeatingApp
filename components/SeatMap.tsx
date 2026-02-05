@@ -168,7 +168,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
     // Helper for GA counts
     const getGACount = () => {
         let count = 0;
-        for (let r = 1; r <= 20; r++) {
+        for (let r = 1; r <= 30; r++) { // Increased from 20 to 30 rows
             for (let c = 1; c <= 5; c++) {
                 if (getBooking(`GA-${r}-${c}`)) count++;
             }
@@ -301,11 +301,11 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
                 <h3 className="text-sm font-bold text-slate-500 mb-1 text-center uppercase tracking-tight">GA</h3>
                 <div className="bg-white px-2 py-0.5 rounded border border-slate-200 mb-2">
                     <span className="text-xs text-black font-black font-mono">
-                        {getGACount()}/100
+                        {getGACount()}/150
                     </span>
                 </div>
                 <div className="grid grid-cols-5 gap-1">
-                    {Array.from({ length: 100 }).map((_, i) => { // 5 cols * 20 rows = 100 seats
+                    {Array.from({ length: 150 }).map((_, i) => { // 5 cols * 30 rows = 150 seats
                         const row = Math.floor(i / 5) + 1;
                         const col = (i % 5) + 1;
                         const id = `GA-${row}-${col}`;
