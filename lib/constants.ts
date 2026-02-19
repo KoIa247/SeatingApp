@@ -24,10 +24,12 @@ export type SeatRole = keyof typeof SEAT_ROLES;
 export const DEFAULT_ROLE: SeatRole = "Row Tickets Sales";
 
 export const EVENT_DATES = [
-    "2026-02-12",
-    "2026-02-13",
-    "2026-02-14",
-    "2026-02-15",
+    "2026-09-08",
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11",
+    "2026-09-12",
+    "2026-09-13",
 ];
 
 export const DEFAULT_TIME_SLOTS = [
@@ -40,10 +42,12 @@ export const DEFAULT_TIME_SLOTS = [
 ];
 
 export const SHOW_TIMES: Record<string, string[]> = {
-    "2026-02-12": ["7:00 PM"],
-    "2026-02-13": DEFAULT_TIME_SLOTS,
-    "2026-02-14": DEFAULT_TIME_SLOTS,
-    "2026-02-15": DEFAULT_TIME_SLOTS,
+    "2026-09-08": ["7:00 PM"],
+    "2026-09-09": DEFAULT_TIME_SLOTS,
+    "2026-09-10": DEFAULT_TIME_SLOTS,
+    "2026-09-11": DEFAULT_TIME_SLOTS,
+    "2026-09-12": DEFAULT_TIME_SLOTS,
+    "2026-09-13": DEFAULT_TIME_SLOTS,
 };
 
 export const DEFAULT_DATE = EVENT_DATES[0];

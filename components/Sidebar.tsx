@@ -3,9 +3,11 @@ import React, { useState } from "react";
 interface SidebarProps {
     viewMode: "single" | "overview";
     setViewMode: (mode: "single" | "overview") => void;
+    isCollapsed: boolean;
+    setIsCollapsed: (collapsed: boolean) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ viewMode, setViewMode }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ viewMode, setViewMode, isCollapsed, setIsCollapsed }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -28,10 +30,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ viewMode, setViewMode }) => {
 
             {/* Sidebar Content */}
             <aside className={`
-                w-72 flex flex-col h-screen fixed left-0 top-0 bg-slate-900 border-r border-slate-800 p-8 z-40 transition-transform duration-300 ease-in-out
-                ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+                w-72 flex flex-col h-screen fixed left-0 top-0 bg-slate-900 border-r border-slate-800 p-8 z-40 transition-all duration-300 ease-in-out
+                ${isOpen ? "translate-x-0" : isCollapsed ? "-translate-x-full" : "translate-x-0"}
+                ${!isOpen && isCollapsed ? "lg:-translate-x-[calc(100%-40px)]" : "lg:translate-x-0"}
             `}>
-                <div className="mb-12">
+                {/* Desktop Toggle Button (Vertical Bar on the right edge when collapsed) */}
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="hidden lg:flex absolute right-0 top-0 bottom-0 w-10 bg-slate-800/50 hover:bg-violet-600/20 items-center justify-center transition-colors group border-l border-slate-700/50"
+                    title={isCollapsed ? "Expand Menu" : "Collapse Menu"}
+                >
+                    <div className={`transition-transform duration-300 ${isCollapsed ? "" : "rotate-180"}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 text-slate-400 group-hover:text-white">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                </button>
+
+                <div className={`${isCollapsed ? "opacity-0 invisible" : "opacity-100 visible"} transition-all duration-200`}>
                     <h1 className="text-3xl font-black text-violet-500 tracking-tighter italic">RUNWAY 7</h1>
                     <div className="flex items-center gap-2 mt-1">
                         <div className="h-1 w-8 bg-violet-600 rounded-full"></div>
@@ -67,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ viewMode, setViewMode }) => {
                     </button>
                 </nav>
 
-                <div className="mt-auto pt-10 border-t border-slate-800">
+                <div className={`mt-auto pt-10 border-t border-slate-800 ${isCollapsed ? "opacity-0 invisible" : "opacity-100 visible"} transition-all duration-200`}>
                     <div className="bg-slate-800/40 p-5 rounded-3xl border border-slate-800/50">
                         <div className="flex items-center gap-2 mb-3">
                             <span className="relative flex h-2 w-2">

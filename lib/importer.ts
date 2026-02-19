@@ -19,11 +19,11 @@ export const parseProductString = (product: string, currentDate: string): Parsed
     const p = product.toUpperCase();
 
     // 1. DATE
-    const dateMatch = p.match(/FEBRUARY\s+(\d+)(ST|ND|RD|TH)?/i);
+    const dateMatch = p.match(/SEPTEMBER\s+(\d+)(ST|ND|RD|TH)?/i);
     let parsedDate = currentDate;
     if (dateMatch) {
         const day = dateMatch[1].padStart(2, '0');
-        parsedDate = `2026-02-${day}`;
+        parsedDate = `2026-09-${day}`;
     }
 
     // 2. TIME
@@ -120,7 +120,7 @@ export const calculateAssignments = (
         let allocated = 0;
 
         if (type === "GENERAL") {
-            for (let r = 1; r <= 20; r++) {
+            for (let r = 1; r <= 30; r++) {
                 if (allocated >= req.qty) break;
                 for (let c = 1; c <= 5; c++) {
                     if (allocated >= req.qty) break;
@@ -146,7 +146,7 @@ export const calculateAssignments = (
                 }
             }
         } else {
-            const SECTION_LENGTHS: Record<number, number> = { 5: 15, 4: 20, 3: 25, 2: 30, 1: 30 };
+            const SECTION_LENGTHS: Record<number, number> = { 6: 8, 5: 15, 4: 20, 3: 25, 2: 30, 1: 30 };
             const maxRows = SECTION_LENGTHS[section] || 20;
 
             for (let r = 1; r <= maxRows; r++) {
