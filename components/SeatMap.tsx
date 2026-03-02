@@ -130,7 +130,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             setIsBulkModalOpen(false);
             // Refresh
         } else {
-            toast.error("Failed to assign seats");
+            toast.error(result.error || "Failed to assign seats");
         }
     };
 

@@ -77,7 +77,7 @@ export const SeatModal: React.FC<SeatModalProps> = ({
                     onClose();
                     toast.success("Seat assigned successfully");
                 } else {
-                    toast.error("Failed to assign seat");
+                    toast.error(result.error || "Failed to assign seat");
                 }
             }
         } catch (error) {

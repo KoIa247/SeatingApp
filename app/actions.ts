@@ -4,6 +4,8 @@ import clientPromise from "@/lib/mongo";
 import { revalidatePath } from "next/cache";
 import { parseProductString, calculateAssignments } from "@/lib/importer";
 import * as XLSX from "xlsx";
+import { getVariationStock, decrementVariationStock } from "@/lib/woocommerce";
+import { resolveVariation } from "@/lib/stockMapping";
 
 // We don't strictly need to export Booking from here if we use lib/types, 
 // but we can keep the implementation focusing on logic.
@@ -49,7 +51,30 @@ export async function assignSeat(
         const client = await clientPromise;
         const collection = client.db().collection("Booking");
 
-        // Upsert manual equivalent
+        // Check if this seat is already assigned (edit mode, not new)
+        const existingBooking = await collection.findOne({ seatNumber, eventDate, eventTime });
+        const isNewAssignment = !existingBooking;
+
+        // Only check & decrement stock for NEW seat assignments (not edits)
+        if (isNewAssignment) {
+            const variation = await resolveVariation(seatId_or_number(seatNumber), seatType, eventDate, eventTime);
+
+            if (variation) {
+                const { stockQuantity, manageStock } = await getVariationStock(
+                    variation.productId,
+                    variation.variationId
+                );
+
+                if (manageStock && (stockQuantity === null || stockQuantity <= 0)) {
+                    return {
+                        success: false,
+                        error: `Out of stock for ${variation.ticketType}. No seats available in WooCommerce.`,
+                    };
+                }
+            }
+        }
+
+        // Upsert the booking in MongoDB
         await collection.updateOne(
             { seatNumber, eventDate, eventTime },
             {
@@ -70,12 +95,30 @@ export async function assignSeat(
             { upsert: true }
         );
 
+        // Decrement WooCommerce stock for new assignments
+        if (isNewAssignment) {
+            try {
+                const variation = await resolveVariation(seatId_or_number(seatNumber), seatType, eventDate, eventTime);
+                if (variation) {
+                    await decrementVariationStock(variation.productId, variation.variationId, 1);
+                }
+            } catch (wcError) {
+                console.error("Warning: Seat saved but WooCommerce stock update failed:", wcError);
+                // Don't fail the seat assignment if stock decrement fails — seat is saved
+            }
+        }
+
         revalidatePath("/");
         return { success: true };
     } catch (error) {
         console.error("Failed to assign seat:", error);
         return { success: false, error: "Failed to assign seat" };
     }
+}
+
+// Helper: resolveVariation expects the seatId as-is (same as seatNumber)
+function seatId_or_number(seatNumber: string): string {
+    return seatNumber;
 }
 
 export async function deleteBooking(seatNumber: string, eventDate: string, eventTime: string) {
@@ -110,6 +153,39 @@ export async function assignMultipleSeats(
     eventTime: string
 ) {
     try {
+        // Group assignments by ticket type to batch-check stock
+        const stockNeeded = new Map<string, { count: number; productId: number; variationId: number; ticketType: string }>();
+
+        for (const a of assignments) {
+            const variation = await resolveVariation(
+                a.seatNumber,
+                a.type as "LEFT_ROW" | "RIGHT_ROW" | "GENERAL" | "VIP",
+                eventDate,
+                eventTime
+            );
+            if (variation) {
+                const key = `${variation.productId}-${variation.variationId}`;
+                const existing = stockNeeded.get(key);
+                if (existing) {
+                    existing.count += 1;
+                } else {
+                    stockNeeded.set(key, { count: 1, ...variation });
+                }
+            }
+        }
+
+        // Check stock availability for each variation group
+        for (const [, entry] of stockNeeded) {
+            const { stockQuantity, manageStock } = await getVariationStock(entry.productId, entry.variationId);
+            if (manageStock && (stockQuantity === null || stockQuantity < entry.count)) {
+                return {
+                    success: false,
+                    error: `Not enough stock for ${entry.ticketType}. Need ${entry.count}, available: ${stockQuantity ?? 0}.`,
+                };
+            }
+        }
+
+        // All stock checks passed — create the bookings
         const client = await clientPromise;
         const collection = client.db().collection("Booking");
         const operations = assignments.map(a => ({
@@ -135,6 +211,15 @@ export async function assignMultipleSeats(
 
         if (operations.length > 0) {
             await collection.bulkWrite(operations);
+        }
+
+        // Decrement WooCommerce stock for each variation group
+        for (const [, entry] of stockNeeded) {
+            try {
+                await decrementVariationStock(entry.productId, entry.variationId, entry.count);
+            } catch (wcError) {
+                console.error(`Warning: Seats saved but stock decrement failed for ${entry.ticketType}:`, wcError);
+            }
         }
 
         revalidatePath("/");
