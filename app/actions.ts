@@ -54,23 +54,29 @@ export async function assignSeat(
         // Check if this seat is already assigned (edit mode, not new)
         const existingBooking = await collection.findOne({ seatNumber, eventDate, eventTime });
         const isNewAssignment = !existingBooking;
+        let resolvedVariation: Awaited<ReturnType<typeof resolveVariation>> = null;
 
         // Only check & decrement stock for NEW seat assignments (not edits)
         if (isNewAssignment) {
-            const variation = await resolveVariation(seatId_or_number(seatNumber), seatType, eventDate, eventTime);
+            try {
+                resolvedVariation = await resolveVariation(seatNumber, seatType, eventDate, eventTime);
 
-            if (variation) {
-                const { stockQuantity, manageStock } = await getVariationStock(
-                    variation.productId,
-                    variation.variationId
-                );
+                if (resolvedVariation) {
+                    const { stockQuantity, manageStock } = await getVariationStock(
+                        resolvedVariation.productId,
+                        resolvedVariation.variationId
+                    );
 
-                if (manageStock && (stockQuantity === null || stockQuantity <= 0)) {
-                    return {
-                        success: false,
-                        error: `Out of stock for ${variation.ticketType}. No seats available in WooCommerce.`,
-                    };
+                    if (manageStock && (stockQuantity === null || stockQuantity <= 0)) {
+                        return {
+                            success: false,
+                            error: `Out of stock for ${resolvedVariation.ticketType}. No seats available in WooCommerce.`,
+                        };
+                    }
                 }
+            } catch (wcError) {
+                console.error("WooCommerce stock check failed, proceeding with seat assignment:", wcError);
+                // Continue with assignment — don't block if WC is unreachable
             }
         }
 
@@ -81,7 +87,7 @@ export async function assignSeat(
                 $set: {
                     customerName,
                     seatType,
-                    role, // Save the role
+                    role,
                     eventTime,
                     orderId,
                     row,
@@ -96,15 +102,11 @@ export async function assignSeat(
         );
 
         // Decrement WooCommerce stock for new assignments
-        if (isNewAssignment) {
+        if (isNewAssignment && resolvedVariation) {
             try {
-                const variation = await resolveVariation(seatId_or_number(seatNumber), seatType, eventDate, eventTime);
-                if (variation) {
-                    await decrementVariationStock(variation.productId, variation.variationId, 1);
-                }
+                await decrementVariationStock(resolvedVariation.productId, resolvedVariation.variationId, 1);
             } catch (wcError) {
                 console.error("Warning: Seat saved but WooCommerce stock update failed:", wcError);
-                // Don't fail the seat assignment if stock decrement fails — seat is saved
             }
         }
 
@@ -112,13 +114,9 @@ export async function assignSeat(
         return { success: true };
     } catch (error) {
         console.error("Failed to assign seat:", error);
-        return { success: false, error: "Failed to assign seat" };
+        const errMsg = error instanceof Error ? error.message : "Failed to assign seat";
+        return { success: false, error: errMsg };
     }
-}
-
-// Helper: resolveVariation expects the seatId as-is (same as seatNumber)
-function seatId_or_number(seatNumber: string): string {
-    return seatNumber;
 }
 
 export async function deleteBooking(seatNumber: string, eventDate: string, eventTime: string) {
@@ -155,37 +153,43 @@ export async function assignMultipleSeats(
     try {
         // Group assignments by ticket type to batch-check stock
         const stockNeeded = new Map<string, { count: number; productId: number; variationId: number; ticketType: string }>();
+        let wcAvailable = true;
 
-        for (const a of assignments) {
-            const variation = await resolveVariation(
-                a.seatNumber,
-                a.type as "LEFT_ROW" | "RIGHT_ROW" | "GENERAL" | "VIP",
-                eventDate,
-                eventTime
-            );
-            if (variation) {
-                const key = `${variation.productId}-${variation.variationId}`;
-                const existing = stockNeeded.get(key);
-                if (existing) {
-                    existing.count += 1;
-                } else {
-                    stockNeeded.set(key, { count: 1, ...variation });
+        try {
+            for (const a of assignments) {
+                const variation = await resolveVariation(
+                    a.seatNumber,
+                    a.type as "LEFT_ROW" | "RIGHT_ROW" | "GENERAL" | "VIP",
+                    eventDate,
+                    eventTime
+                );
+                if (variation) {
+                    const key = `${variation.productId}-${variation.variationId}`;
+                    const existing = stockNeeded.get(key);
+                    if (existing) {
+                        existing.count += 1;
+                    } else {
+                        stockNeeded.set(key, { count: 1, ...variation });
+                    }
                 }
             }
-        }
 
-        // Check stock availability for each variation group
-        for (const [, entry] of stockNeeded) {
-            const { stockQuantity, manageStock } = await getVariationStock(entry.productId, entry.variationId);
-            if (manageStock && (stockQuantity === null || stockQuantity < entry.count)) {
-                return {
-                    success: false,
-                    error: `Not enough stock for ${entry.ticketType}. Need ${entry.count}, available: ${stockQuantity ?? 0}.`,
-                };
+            // Check stock availability for each variation group
+            for (const [, entry] of stockNeeded) {
+                const { stockQuantity, manageStock } = await getVariationStock(entry.productId, entry.variationId);
+                if (manageStock && (stockQuantity === null || stockQuantity < entry.count)) {
+                    return {
+                        success: false,
+                        error: `Not enough stock for ${entry.ticketType}. Need ${entry.count}, available: ${stockQuantity ?? 0}.`,
+                    };
+                }
             }
+        } catch (wcError) {
+            console.error("WooCommerce stock check failed, proceeding with seat assignment anyway:", wcError);
+            wcAvailable = false;
         }
 
-        // All stock checks passed — create the bookings
+        // Create the bookings in MongoDB
         const client = await clientPromise;
         const collection = client.db().collection("Booking");
         const operations = assignments.map(a => ({
@@ -214,11 +218,13 @@ export async function assignMultipleSeats(
         }
 
         // Decrement WooCommerce stock for each variation group
-        for (const [, entry] of stockNeeded) {
-            try {
-                await decrementVariationStock(entry.productId, entry.variationId, entry.count);
-            } catch (wcError) {
-                console.error(`Warning: Seats saved but stock decrement failed for ${entry.ticketType}:`, wcError);
+        if (wcAvailable) {
+            for (const [, entry] of stockNeeded) {
+                try {
+                    await decrementVariationStock(entry.productId, entry.variationId, entry.count);
+                } catch (wcError) {
+                    console.error(`Warning: Seats saved but stock decrement failed for ${entry.ticketType}:`, wcError);
+                }
             }
         }
 
@@ -226,7 +232,8 @@ export async function assignMultipleSeats(
         return { success: true };
     } catch (error) {
         console.error("Failed to assign multiple seats:", error);
-        return { success: false, error: "Failed to assign multiple seats" };
+        const errMsg = error instanceof Error ? error.message : "Failed to assign multiple seats";
+        return { success: false, error: errMsg };
     }
 }
 
