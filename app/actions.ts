@@ -81,6 +81,10 @@ export async function assignSeat(
                 }
             } catch (wcError) {
                 console.error("[assignSeat] WooCommerce stock check failed:", wcError);
+                return {
+                    success: false,
+                    error: "Could not verify stock with WooCommerce. Please try again.",
+                };
             }
         }
 
@@ -222,8 +226,11 @@ export async function assignMultipleSeats(
                 }
             }
         } catch (wcError) {
-            console.error("WooCommerce stock check failed, proceeding with seat assignment anyway:", wcError);
-            wcAvailable = false;
+            console.error("WooCommerce stock check failed:", wcError);
+            return {
+                success: false,
+                error: "Could not verify stock with WooCommerce. Please try again.",
+            };
         }
 
         // Create the bookings in MongoDB
