@@ -269,7 +269,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({ initialBookings, currentDate, 
             <div className="flex flex-col items-end px-1">
                 <h2 className="text-base font-black text-slate-500 mb-4 pr-4 uppercase tracking-widest">Left</h2>
                 <div className="flex gap-1 items-start justify-end">
-                    {[6, 5, 4, 3, 2, 1].map(secNum =>
+                    {[5, 4, 3, 2, 1].map(secNum =>
                         renderSectionColumn(secNum, SECTION_LENGTHS[secNum], "LEFT_ROW")
                     )}
                 </div>

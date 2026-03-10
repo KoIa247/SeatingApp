@@ -40,6 +40,48 @@ export async function getVariationStock(
  * Decrement the stock quantity for a WooCommerce product variation by a given amount.
  * Returns the new stock quantity.
  */
+/**
+ * Increment the stock quantity for a WooCommerce product variation by a given amount.
+ * Used when a seat booking is deleted to free the stock back.
+ */
+export async function incrementVariationStock(
+    productId: number,
+    variationId: number,
+    incrementBy: number = 1
+): Promise<number> {
+    const { stockQuantity, manageStock } = await getVariationStock(productId, variationId);
+
+    if (!manageStock) {
+        return -1;
+    }
+
+    const currentStock = stockQuantity ?? 0;
+    const newStock = currentStock + incrementBy;
+
+    const url = `${WC_STORE_URL}/wp-json/wc/v3/products/${productId}/variations/${variationId}`;
+
+    const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+            Authorization: getAuthHeader(),
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ stock_quantity: newStock }),
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`WooCommerce API error updating stock (${response.status}): ${text}`);
+    }
+
+    const updated = await response.json();
+    return updated.stock_quantity;
+}
+
+/**
+ * Decrement the stock quantity for a WooCommerce product variation by a given amount.
+ * Returns the new stock quantity.
+ */
 export async function decrementVariationStock(
     productId: number,
     variationId: number,

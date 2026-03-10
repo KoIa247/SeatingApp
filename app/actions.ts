@@ -4,7 +4,7 @@ import clientPromise from "@/lib/mongo";
 import { revalidatePath } from "next/cache";
 import { parseProductString, calculateAssignments } from "@/lib/importer";
 import * as XLSX from "xlsx";
-import { getVariationStock, decrementVariationStock } from "@/lib/woocommerce";
+import { getVariationStock, decrementVariationStock, incrementVariationStock } from "@/lib/woocommerce";
 import { resolveVariation } from "@/lib/stockMapping";
 
 // We don't strictly need to export Booking from here if we use lib/types, 
@@ -48,6 +48,7 @@ export async function assignSeat(
     orderId?: string
 ) {
     try {
+        console.log(`[assignSeat] START: seat=${seatNumber}, type=${seatType}, date=${eventDate}, time=${eventTime}`);
         const client = await clientPromise;
         const collection = client.db().collection("Booking");
 
@@ -56,16 +57,20 @@ export async function assignSeat(
         const isNewAssignment = !existingBooking;
         let resolvedVariation: Awaited<ReturnType<typeof resolveVariation>> = null;
 
+        console.log(`[assignSeat] isNewAssignment=${isNewAssignment}`);
+
         // Only check & decrement stock for NEW seat assignments (not edits)
         if (isNewAssignment) {
             try {
                 resolvedVariation = await resolveVariation(seatNumber, seatType, eventDate, eventTime);
+                console.log(`[assignSeat] resolvedVariation=`, resolvedVariation);
 
                 if (resolvedVariation) {
                     const { stockQuantity, manageStock } = await getVariationStock(
                         resolvedVariation.productId,
                         resolvedVariation.variationId
                     );
+                    console.log(`[assignSeat] WC stock: quantity=${stockQuantity}, managed=${manageStock}`);
 
                     if (manageStock && (stockQuantity === null || stockQuantity <= 0)) {
                         return {
@@ -75,8 +80,7 @@ export async function assignSeat(
                     }
                 }
             } catch (wcError) {
-                console.error("WooCommerce stock check failed, proceeding with seat assignment:", wcError);
-                // Continue with assignment — don't block if WC is unreachable
+                console.error("[assignSeat] WooCommerce stock check failed:", wcError);
             }
         }
 
@@ -100,20 +104,25 @@ export async function assignSeat(
             },
             { upsert: true }
         );
+        console.log(`[assignSeat] MongoDB upsert done`);
 
         // Decrement WooCommerce stock for new assignments
         if (isNewAssignment && resolvedVariation) {
             try {
+                console.log(`[assignSeat] Decrementing stock for product=${resolvedVariation.productId}, variation=${resolvedVariation.variationId}`);
                 await decrementVariationStock(resolvedVariation.productId, resolvedVariation.variationId, 1);
+                console.log(`[assignSeat] Stock decremented successfully`);
             } catch (wcError) {
-                console.error("Warning: Seat saved but WooCommerce stock update failed:", wcError);
+                console.error("[assignSeat] Stock decrement failed:", wcError);
             }
+        } else {
+            console.log(`[assignSeat] Skipping stock decrement: isNew=${isNewAssignment}, hasVariation=${!!resolvedVariation}`);
         }
 
         revalidatePath("/");
         return { success: true };
     } catch (error) {
-        console.error("Failed to assign seat:", error);
+        console.error("[assignSeat] FATAL:", error);
         const errMsg = error instanceof Error ? error.message : "Failed to assign seat";
         return { success: false, error: errMsg };
     }
@@ -122,7 +131,35 @@ export async function assignSeat(
 export async function deleteBooking(seatNumber: string, eventDate: string, eventTime: string) {
     try {
         const client = await clientPromise;
-        await client.db().collection("Booking").deleteOne({ seatNumber, eventDate, eventTime });
+        const collection = client.db().collection("Booking");
+
+        // Find the booking first so we can resolve its WC variation for stock increment
+        const booking = await collection.findOne({ seatNumber, eventDate, eventTime });
+
+        if (!booking) {
+            return { success: false, error: "Booking not found" };
+        }
+
+        // Delete from MongoDB
+        await collection.deleteOne({ seatNumber, eventDate, eventTime });
+
+        // Increment WooCommerce stock to free the seat
+        try {
+            const resolvedVariation = await resolveVariation(
+                seatNumber,
+                booking.seatType as "LEFT_ROW" | "RIGHT_ROW" | "GENERAL" | "VIP",
+                eventDate,
+                eventTime
+            );
+
+            if (resolvedVariation) {
+                await incrementVariationStock(resolvedVariation.productId, resolvedVariation.variationId, 1);
+                console.log(`[deleteBooking] Stock incremented for ${resolvedVariation.ticketType}`);
+            }
+        } catch (wcError) {
+            console.error("[deleteBooking] Stock increment failed:", wcError);
+        }
+
         revalidatePath("/");
         return { success: true };
     } catch (error) {
