@@ -137,6 +137,7 @@ export interface StockLookupResult {
 /**
  * Resolves a seat assignment to the correct WooCommerce product + variation.
  * Returns null if no mapping exists (e.g. VIP without stock management, or unknown seat).
+ * Returns null if no mapping exists (e.g. VIP without stock management, or unknown seat).
  */
 export async function resolveVariation(
     seatId: string,

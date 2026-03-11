@@ -65,19 +65,24 @@ export async function assignSeat(
                 resolvedVariation = await resolveVariation(seatNumber, seatType, eventDate, eventTime);
                 console.log(`[assignSeat] resolvedVariation=`, resolvedVariation);
 
-                if (resolvedVariation) {
-                    const { stockQuantity, manageStock } = await getVariationStock(
-                        resolvedVariation.productId,
-                        resolvedVariation.variationId
-                    );
-                    console.log(`[assignSeat] WC stock: quantity=${stockQuantity}, managed=${manageStock}`);
+                if (!resolvedVariation) {
+                    return {
+                        success: false,
+                        error: "Could not resolve WooCommerce variation for this seat. Cannot verify stock.",
+                    };
+                }
 
-                    if (manageStock && (stockQuantity === null || stockQuantity <= 0)) {
-                        return {
-                            success: false,
-                            error: `Out of stock for ${resolvedVariation.ticketType}. No seats available in WooCommerce.`,
-                        };
-                    }
+                const { stockQuantity, manageStock } = await getVariationStock(
+                    resolvedVariation.productId,
+                    resolvedVariation.variationId
+                );
+                console.log(`[assignSeat] WC stock: quantity=${stockQuantity}, managed=${manageStock}`);
+
+                if (manageStock && (stockQuantity === null || stockQuantity <= 0)) {
+                    return {
+                        success: false,
+                        error: `Out of stock for ${resolvedVariation.ticketType}. No seats available in WooCommerce.`,
+                    };
                 }
             } catch (wcError) {
                 console.error("[assignSeat] WooCommerce stock check failed:", wcError);
@@ -194,8 +199,6 @@ export async function assignMultipleSeats(
     try {
         // Group assignments by ticket type to batch-check stock
         const stockNeeded = new Map<string, { count: number; productId: number; variationId: number; ticketType: string }>();
-        let wcAvailable = true;
-
         try {
             for (const a of assignments) {
                 const variation = await resolveVariation(
@@ -204,14 +207,19 @@ export async function assignMultipleSeats(
                     eventDate,
                     eventTime
                 );
-                if (variation) {
-                    const key = `${variation.productId}-${variation.variationId}`;
-                    const existing = stockNeeded.get(key);
-                    if (existing) {
-                        existing.count += 1;
-                    } else {
-                        stockNeeded.set(key, { count: 1, ...variation });
-                    }
+                if (!variation) {
+                    return {
+                        success: false,
+                        error: `Could not resolve WooCommerce variation for seat ${a.seatNumber}. Cannot verify stock.`,
+                    };
+                }
+
+                const key = `${variation.productId}-${variation.variationId}`;
+                const existing = stockNeeded.get(key);
+                if (existing) {
+                    existing.count += 1;
+                } else {
+                    stockNeeded.set(key, { count: 1, ...variation });
                 }
             }
 
@@ -262,15 +270,13 @@ export async function assignMultipleSeats(
         }
 
         // Decrement WooCommerce stock for each variation group
-        if (wcAvailable) {
-            for (const [, entry] of stockNeeded) {
+        for (const [, entry] of stockNeeded) {
                 try {
                     await decrementVariationStock(entry.productId, entry.variationId, entry.count);
                 } catch (wcError) {
                     console.error(`Warning: Seats saved but stock decrement failed for ${entry.ticketType}:`, wcError);
                 }
             }
-        }
 
         revalidatePath("/");
         return { success: true };
