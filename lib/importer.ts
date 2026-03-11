@@ -19,7 +19,7 @@ export const parseProductString = (product: string, currentDate: string): Parsed
     const p = product.toUpperCase();
 
     // 1. DATE
-    const dateMatch = p.match(/SEPTEMBER\s+(\d+)(ST|ND|RD|TH)?/i);
+    const dateMatch = p.match(/SEPTEMBER[\s\-]+(\d+)(ST|ND|RD|TH)?/i);
     let parsedDate = currentDate;
     if (dateMatch) {
         const day = dateMatch[1].padStart(2, '0');
